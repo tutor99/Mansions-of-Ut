@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PuertaOpenLevel3 : MonoBehaviour
+public class DoorOpened : MonoBehaviour
 {
 
     public Animator door;
