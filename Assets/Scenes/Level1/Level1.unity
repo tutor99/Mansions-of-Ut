@@ -426,11 +426,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 250
   groundDrag: 10
-  jumpForce: 10000
-  airMultiplier: 0
   walkSpeed: 0
   sprintSpeed: 0
-  jumpKey: 32
   playerHeight: 7
   whatIsGround:
     serializedVersion: 2
@@ -537,8 +534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09eee129451256f4d835c9f339255f62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensX: 1000
-  sensY: 1000
+  sensX: 90
+  sensY: 90
   orientation: {fileID: 821159738}
 --- !u!114 &213682291
 MonoBehaviour:
@@ -2859,11 +2856,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 8
   groundDrag: 10
-  jumpForce: 0
-  airMultiplier: 0.08
   walkSpeed: 0
   sprintSpeed: 0
-  jumpKey: 32
   playerHeight: 10
   whatIsGround:
     serializedVersion: 2
