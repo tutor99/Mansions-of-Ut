@@ -7,18 +7,16 @@ public class Movement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
-
+    bool isShiftPressed = false;
+    bool speedIncreased = false;
+    float lastShiftPressTime;
+    private float originalMoveSpeed;
+    int tired = 0;
     public float groundDrag;
-
-    public float jumpForce;
-    public float airMultiplier;
-    bool readyToJump;
+    
 
     [HideInInspector] public float walkSpeed;
     [HideInInspector] public float sprintSpeed;
-
-    [Header("Keybinds")]
-    public KeyCode jumpKey = KeyCode.Space;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -39,7 +37,7 @@ public class Movement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        readyToJump = true;
+        originalMoveSpeed = moveSpeed;      
     }
 
     private void Update()
@@ -49,13 +47,13 @@ public class Movement : MonoBehaviour
 
         MyInput();
         SpeedControl();
-        AdjustGravity();
 
         // handle drag
         if (grounded)
             rb.drag = groundDrag;
         else
             rb.drag = 0;
+
     }
 
     private void FixedUpdate()
@@ -67,18 +65,33 @@ public class Movement : MonoBehaviour
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
+        float timeSinceLastShiftPress = Time.time - lastShiftPressTime;
 
-        // when to jump
-        if (Input.GetKeyDown(jumpKey) && readyToJump && grounded)
+        if (Input.GetKey(KeyCode.LeftShift) && !isShiftPressed && !speedIncreased && tired == 0)
         {
-            Jump();
-            readyToJump = false;  // Ahora, desactivamos la posibilidad de salto hasta que el jugador vuelva a soltar y presionar el botón.
+            isShiftPressed = true; // Marcar que la tecla Shift está presionada
+            moveSpeed *= 2; // Aumentar la velocidad en 5
+            speedIncreased = true; // Marcar que la velocidad ha sido incrementada
+
         }
-
-        // Permitir un nuevo salto cuando el jugador suelta el botón
-        if (Input.GetKeyUp(jumpKey))
+        if (Input.GetKeyUp(KeyCode.LeftShift) || tired >= 8 )
         {
-            readyToJump = true;
+            moveSpeed = originalMoveSpeed; // Reducir la velocidad a la mitad
+            isShiftPressed = false; // Restablecer el estado de la tecla Shift
+            speedIncreased = false; // Restablecer el estado de la velocidad aumentada
+        }
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            // Si ha pasado 1 segundo desde la última vez que se presionó la tecla Shift
+            if (timeSinceLastShiftPress >= 1f)
+            {
+                tired++; // Aumentar la variable tired
+                lastShiftPressTime = Time.time; // Actualizar el tiempo de la última presión de tecla Shift
+            }
+        }
+        if (Time.time - lastShiftPressTime >= 5f)
+        {
+            tired = 0;
         }
     }
 
@@ -90,11 +103,6 @@ public class Movement : MonoBehaviour
         // on ground
         if(grounded){
             rb.AddForce(moveDirection.normalized * moveSpeed * 5f, ForceMode.Force);
-        }
-
-        // in air
-        else if(!grounded){
-            rb.AddForce(moveDirection.normalized * moveSpeed * 1f * airMultiplier, ForceMode.Force);
         }
     }
 
@@ -108,22 +116,5 @@ public class Movement : MonoBehaviour
             Vector3 limitedVel = flatVel.normalized * moveSpeed;
             rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
         }
-    }
-
-    void AdjustGravity()
-    {
-        Physics.gravity = new Vector3(Physics.gravity.x, -30f, Physics.gravity.z);
-    }
-
-    private void Jump()
-    {
-        // reset y velocity
-        rb.velocity = new Vector3(rb.velocity.x, 10f, rb.velocity.z);
-
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-    }
-    private void ResetJump()
-    {
-        readyToJump = true;
     }
 }
